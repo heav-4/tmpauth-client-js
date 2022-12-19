@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { tmpauth } from "@tmpim/tmpauth-js/handler/hono";
-import { CloudflareWorkerJwtProvider } from "@tmpim/tmpauth-js/jwt/cloudflare-worker-jwt";
+import { tmpauth } from "@tmpim/tmpauth-client-js/handler/hono";
+import { CloudflareWorkerJwtProvider } from "@tmpim/tmpauth-client-js/jwt/cloudflare-worker-jwt";
 
 interface Env {
   TMPAUTH_SECRET: string;

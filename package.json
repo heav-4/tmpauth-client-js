@@ -1,5 +1,5 @@
 {
-  "name": "@tmpim/tmpauth-js",
+  "name": "@tmpim/tmpauth-client-js",
   "version": "0.0.0",
   "author": "tmpim",
   "description": "tmpauth client for javascript",

@@ -1,5 +1,5 @@
 {
-  "name": "@tmpim/tmpauth-js-example-cloudflare-workers-hono",
+  "name": "@tmpim/tmpauth-client-js-example-cloudflare-workers-hono",
   "version": "0.0.0",
   "author": "tmpim",
   "description": "example of using tmpauth-js in cloudflare workers with hono",
@@ -9,7 +9,7 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "@tmpim/tmpauth-js": "file:../..",
+    "@tmpim/tmpauth-client-js": "file:../..",
     "@tsndr/cloudflare-worker-jwt": "^2.1.4",
     "hono": "^2.6.2"
   }

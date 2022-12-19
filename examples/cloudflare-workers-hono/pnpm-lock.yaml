@@ -2,13 +2,13 @@ lockfileVersion: 5.4
 
 specifiers:
   '@cloudflare/workers-types': ^4.20221111.1
-  '@tmpim/tmpauth-js': file:../..
+  '@tmpim/tmpauth-client-js': file:../..
   '@tsndr/cloudflare-worker-jwt': ^2.1.4
   hono: ^2.6.2
   typescript: ^4.9.4
 
 dependencies:
-  '@tmpim/tmpauth-js': file:../..
+  '@tmpim/tmpauth-client-js': file:../..
   '@tsndr/cloudflare-worker-jwt': 2.1.4
   hono: 2.6.2
 
@@ -584,7 +584,7 @@ packages:
 
   file:../..:
     resolution: {directory: ../.., type: directory}
-    name: '@tmpim/tmpauth-js'
+    name: '@tmpim/tmpauth-client-js'
     version: 0.0.0
     dependencies:
       cookie: 0.5.0
