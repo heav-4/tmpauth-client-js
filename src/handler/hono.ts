@@ -2,7 +2,7 @@ import { Handler } from "hono";
 import { StatusCode } from "hono/utils/http-status";
 import { createConfig, handleTmpauth, TmpauthParams, TmpauthState } from "./handle";
 
-export function tmpauth(params: Omit<TmpauthParams, "applicationSecret">): Handler {
+export function tmpauth(params: TmpauthParams): Handler {
   return async (ctx, next) => {
     const authState = ctx.get<TmpauthState | undefined>("tmpauth");
 
@@ -10,7 +10,7 @@ export function tmpauth(params: Omit<TmpauthParams, "applicationSecret">): Handl
       return next();
 
     const config = createConfig({
-      applicationSecret: ctx.env!!.TMPAUTH_SECRET,
+      applicationSecret: ctx.env!!.TMPAUTH_SECRET ?? params.applicationSecret,
       ...params
     });
     const url = new URL(ctx.req.url);
@@ -21,12 +21,7 @@ export function tmpauth(params: Omit<TmpauthParams, "applicationSecret">): Handl
     }, config);
 
     if (!tmpauthResponse.ok) {
-      ctx.status(tmpauthResponse.statusCode as StatusCode);
-      for (const [key, value] of Object.entries(tmpauthResponse.headers)) {
-        ctx.res.headers.set(key, value);
-      }
-
-      return ctx.body(tmpauthResponse.body);
+      return ctx.body(tmpauthResponse.body, tmpauthResponse.statusCode as StatusCode, tmpauthResponse.headers);
     }
 
     ctx.set("tmpauth", tmpauthResponse.state);

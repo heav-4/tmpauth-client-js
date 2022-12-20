@@ -5,11 +5,11 @@ import { convertP256PublicKeyToPEM } from "./convert-key";
 const combine = (data: JwtData): TmpauthJwtPayload => Object.assign({}, data.header, data.payload);
 
 export class CloudflareWorkerJwtProvider extends TmpauthJwtProvider {
-  private secret!: string;
+  private applicationSecret!: string;
   private authPublicKey!: string;
 
   init() {
-    this.secret = this.config.applicationSecret.secret;
+    this.applicationSecret = this.config.applicationSecret.secret;
     this.authPublicKey = convertP256PublicKeyToPEM(this.config.authPublicKey);
   }
 
@@ -18,22 +18,22 @@ export class CloudflareWorkerJwtProvider extends TmpauthJwtProvider {
   }
 
   async signSecret(payload: TmpauthJwtPayload): Promise<string> {
-    return await jwt.sign(payload, this.secret, {
+    return await jwt.sign(payload, this.applicationSecret, {
       algorithm: "HS256"
     });
   }
 
   async verifySecret(state: string):  Promise<TmpauthJwtPayload | undefined> {
     try {
-      const isValid = await jwt.verify(state, this.secret, {
+      const isValid = await jwt.verify(state, this.applicationSecret, {
         algorithm: "HS256"
       });
 
-      if (!isValid) return;
+      if (!isValid) return void console.error("cloudflare-worker-jwt: invalid secret token");
 
       return combine(jwt.decode(state));
     } catch (err) {
-      console.error("CloudflareWorkerJwtProvider.verifySecret", err);
+      console.warn("CloudflareWorkerJwtProvider.verifySecret", err);
     }
   }
 
@@ -43,11 +43,11 @@ export class CloudflareWorkerJwtProvider extends TmpauthJwtProvider {
         algorithm: "ES256"
       });
 
-      if (!isValid) return;
+      if (!isValid) return void console.error("cloudflare-worker-jwt: invalid central token");
 
       return combine(jwt.decode(token));
     } catch (err) {
-      console.error("CloudflareWorkerJwtProvider.verifyCentral", err);
+      console.warn("CloudflareWorkerJwtProvider.verifyCentral", err);
     }
   }
 }

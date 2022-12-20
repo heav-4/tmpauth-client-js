@@ -2,8 +2,8 @@ import { TmpauthJwtPayload, TmpauthJwtProvider } from "../jwt/generic";
 import cookie from "cookie";
 
 export interface TmpauthParams {
-  applicationSecret: string;
   jwtProvider: { new (config: TmpauthConfig): TmpauthJwtProvider };
+  applicationSecret?: string;
   authHost?: string;
   authPublicKey?: string;
   skipFetch?: boolean;
@@ -60,7 +60,12 @@ export async function handleTmpauth(
       case "callback":
         return authCallback(req, config);
       case "status":
-        throw new Error("Not implemented");
+        return {
+          ok: false,
+          headers: {},
+          statusCode: 501,
+          body: "tmpauth: status not implemented"
+        };
       default:
         return {
           ok: false,
@@ -75,13 +80,11 @@ export async function handleTmpauth(
   const xTmpauthHeader = req.headers["x-tmpauth-token"];
   const authHeader = req.headers.authorization?.startsWith(BEARER_PREFIX) ? req.headers.authorization.slice(BEARER_PREFIX.length) : undefined;
 
-  if (!cookieToken && !xTmpauthHeader && !authHeader) {
-    return startAuth(req, config);
-  }
-
   const token = cookieToken || xTmpauthHeader || authHeader;
 
-  if (!token) return startAuth(req, config);
+  if (!token) {
+    return startAuth(req, config);
+  }
 
   const authState = await validateToken(token, config);
 
@@ -104,6 +107,8 @@ export function createConfig(params: TmpauthParams): TmpauthConfig {
     // TODO: Fetching is not implemented yet
     skipFetch: false
   } as TmpauthConfig;
+
+  if (!params.applicationSecret) throw new Error("Missing application secret");
 
   config.jwtProvider = new params.jwtProvider(config);
   const appToken = config.jwtProvider.decode(params.applicationSecret);
@@ -159,15 +164,15 @@ async function validateToken(
 
   const state = await config.jwtProvider.verifySecret(tokenStr);
   if (!state) return;
-  if (state.aud !== `${host}:server:user_cookie:${clientId}`) return;
+  if (state.aud !== `${host}:server:user_cookie:${clientId}`) return void console.error("tmpauth: invalid state aud");
   if (state.iss !== `${host}:central:${clientId}`
-   && state.iss !== `${host}:distributed:${clientId}`) return;
+   && state.iss !== `${host}:distributed:${clientId}`) return void console.error("tmpauth: invalid state iss");
 
   const token = await config.jwtProvider.verifyCentral(state.token);
   if (!token) return;
-  if (token.aud !== `${host}:server:identity:${clientId}`) return;
-  if (token.iss !== `${host}:central`) return;
-  if (!token.sub) return;
+  if (token.aud !== `${host}:server:identity:${clientId}`) return void console.error("tmpauth: invalid token aud");
+  if (token.iss !== `${host}:central`) return void console.error("tmpauth: invalid token iss");
+  if (!token.sub) return void console.error("tmpauth: invalid token sub");
 
   return token;
 }
