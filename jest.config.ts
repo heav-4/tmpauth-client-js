@@ -4,7 +4,7 @@ const config: Config = {
   preset: "ts-jest",
   testEnvironment: "node",
   verbose: true,
-  coveragePathIgnorePatterns: [ "<rootDir>/tst/"],
+  collectCoverageFrom: ["<rootDir>/src/**/*.ts"],
   testMatch: ["<rootDir>/tst/**/*.test.ts"]
 };
 

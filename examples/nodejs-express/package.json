@@ -1,20 +1,23 @@
 {
-  "name": "@tmpim/tmpauth-client-js-example-cloudflare-workers-hono",
+  "name": "@tmpim/tmpauth-client-js-example-nodejs-express",
   "version": "0.0.0",
   "author": "tmpim",
   "description": "example of using tmpauth-js in cloudflare workers with hono",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "ts-node app.ts"
   },
-  "type": "module",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20221111.1",
+    "@types/express": "^4.17.15",
+    "@types/node": "^18.11.17",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   },
   "dependencies": {
     "@tmpim/tmpauth-client-js": "file:../..",
-    "@tsndr/cloudflare-worker-jwt": "^2.1.4",
-    "hono": "^2.6.2"
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1"
   }
 }
