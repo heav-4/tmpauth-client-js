@@ -14,3 +14,8 @@ runs anywhere, minimal dependencies, 100% test coverage
  - express ([example](./examples/nodejs-express/app.ts))
  - api gateway ([example](./examples/aws-lambda-api-gateway/app.ts))
  - itty router (maybe)
+
+## todo (prs welcome)
+ - identity fetching
+ - identity caching
+ - status endpoint
