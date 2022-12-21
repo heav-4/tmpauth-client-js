@@ -2,7 +2,7 @@
   "name": "@tmpim/tmpauth-client-js-example-nodejs-express",
   "version": "0.0.0",
   "author": "tmpim",
-  "description": "example of using tmpauth-js in cloudflare workers with hono",
+  "description": "example of using tmpauth-js in nodejs with express",
   "license": "MIT",
   "scripts": {
     "build": "tsc",

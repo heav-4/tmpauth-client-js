@@ -1,0 +1,19 @@
+{
+  "name": "@tmpim/tmpauth-client-js-example-aws-lambda-api-gateway",
+  "version": "0.0.0",
+  "author": "tmpim",
+  "description": "example of using tmpauth-js in aws lambda with api gateway",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.109",
+    "@types/node": "^18.11.17",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@tmpim/tmpauth-client-js": "file:../..",
+    "jsonwebtoken": "^8.5.1"
+  }
+}

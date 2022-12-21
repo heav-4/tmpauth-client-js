@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@cloudflare/workers-types': ^4.20221111.1
   '@tsndr/cloudflare-worker-jwt': ^2.1.4
+  '@types/aws-lambda': ^8.10.109
   '@types/cookie': ^0.5.1
   '@types/express': ^4.17.15
   '@types/jest': ^29.2.4
@@ -29,6 +30,7 @@ optionalDependencies:
 
 devDependencies:
   '@cloudflare/workers-types': 4.20221111.1
+  '@types/aws-lambda': 8.10.109
   '@types/cookie': 0.5.1
   '@types/express': 4.17.15
   '@types/jest': 29.2.4
@@ -703,6 +705,10 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@types/aws-lambda/8.10.109:
+    resolution: {integrity: sha512-/ME92FneNyXQzrAfcnQQlW1XkCZGPDlpi2ao1MJwecN+6SbeonKeggU8eybv1DfKli90FAVT1MlIZVXfwVuCyg==}
+    dev: true
 
   /@types/babel__core/7.1.20:
     resolution: {integrity: sha512-PVb6Bg2QuscZ30FvOU7z4guG6c926D9YRvOxEaelzndpMsvP+YM74Q/dAFASpg2l6+XLalxSGxcq/lrgYWZtyQ==}

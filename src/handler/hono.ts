@@ -13,6 +13,7 @@ export function tmpauth(params: TmpauthParams): Handler {
       applicationSecret: ctx.env!!.TMPAUTH_SECRET,
       ...params
     });
+
     const url = new URL(ctx.req.url);
     const tmpauthResponse = await handleTmpauth({
       path: url.pathname,

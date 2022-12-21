@@ -3,16 +3,16 @@ import { eliminateArraysAndObjects } from "../util";
 import { createConfig, handleTmpauth, TmpauthParams } from "./handle";
 
 export function tmpauth(params: TmpauthParams) {
+  const config = createConfig({
+    applicationSecret: process.env.TMPAUTH_SECRET,
+    ...params
+  });
+
   return async (req: Request, res: Response, next: NextFunction) => {
     const authState = res.locals.tmpauth;
 
     if (authState)
       return next();
-
-    const config = createConfig({
-      applicationSecret: process.env.TMPAUTH_SECRET,
-      ...params
-    });
 
     const tmpauthResponse = await handleTmpauth({
       path: req.path,
