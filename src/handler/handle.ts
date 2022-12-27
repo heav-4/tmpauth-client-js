@@ -1,16 +1,21 @@
 import { TmpauthJwtPayload, TmpauthJwtProvider } from "../jwt/generic";
 import cookie from "cookie";
+import { TmpauthMetadataProvider, WhomstUser } from "../metadata/generic";
+import type { fetch as DOMFetch } from "undici";
 
 export interface TmpauthParams {
   jwtProvider: { new (config: TmpauthConfig): TmpauthJwtProvider };
+  metadataProvider?: { new (config: TmpauthConfig): TmpauthMetadataProvider };
+  applicationHost?: string;
   applicationSecret?: string;
   authHost?: string;
   authPublicKey?: string;
-  skipFetch?: boolean;
+  fetch?: typeof DOMFetch;
 }
 
 export interface TmpauthState {
   token: TmpauthJwtPayload;
+  user?: WhomstUser;
 }
 
 export interface TmpauthSuccessResponse {
@@ -29,15 +34,18 @@ export type TmpauthResponse = TmpauthSuccessResponse | TmpauthRejectResponse;
 
 export interface TmpauthConfig {
   applicationSecret: TmpauthApplicationSecret;
+  applicationHost?: string;
   jwtProvider: TmpauthJwtProvider;
+  metadataProvider?: TmpauthMetadataProvider;
   authHost: string;
   authPublicKey: string;
-  skipFetch: boolean;
+  fetch: typeof fetch;
 }
 
 export interface TmpauthApplicationSecret {
   secret: string;
   clientId: string;
+  token: string;
 }
 
 export interface TmpauthRequest {
@@ -92,20 +100,41 @@ export async function handleTmpauth(
     return startAuth(req, config);
   }
 
-  return {
-    ok: true,
-    state: {
-      token: authState
+  if (config.metadataProvider) {
+    const whomstUser = await config.metadataProvider.retrieveUser(authState.payload.sub!, authState.token);
+
+    if (whomstUser) {
+      return {
+        ok: true,
+        state: {
+          token: authState.payload,
+          user: whomstUser
+        }
+      }
+    } else {
+      return {
+        ok: false,
+        headers: {},
+        statusCode: 403,
+        body: "tmpauth: forbidden"
+      }
     }
-  };
+  } else {
+    return {
+      ok: true,
+      state: {
+        token: authState
+      }
+    };
+  }
 }
 
 export function createConfig(params: TmpauthParams): TmpauthConfig {
   const config = {
+    applicationHost: params.applicationHost,
     authHost: params.authHost || "auth.tmpim.pw",
     authPublicKey: params.authPublicKey || "BN/PHEYgs0meH878gqpWl81WD3zEJ+ubih3RVYwFxaYXxHF+5tgDaJ/M++CRjur8vtXxoJnPETM8WRIc3CO0LyM=",
-    // TODO: Fetching is not implemented yet
-    skipFetch: false
+    fetch: params.fetch || fetch.bind(globalThis)
   } as TmpauthConfig;
 
   if (!params.applicationSecret) throw new Error("Missing application secret");
@@ -117,9 +146,15 @@ export function createConfig(params: TmpauthParams): TmpauthConfig {
   }
   config.applicationSecret = {
     secret: appToken.secret,
-    clientId: appToken.sub
+    clientId: appToken.sub,
+    token: params.applicationSecret
   };
   config.jwtProvider.init();
+
+  if (params.metadataProvider) {
+    config.metadataProvider = new params.metadataProvider(config);
+    config.metadataProvider.init();
+  }
 
   return config;
 }
@@ -129,9 +164,11 @@ async function startAuth(
   config: TmpauthConfig
 ): Promise<TmpauthResponse> {
   const now = Math.floor(Date.now() / 1000);
+  const host = config.applicationHost || req.headers.host;
+
   const token = await config.jwtProvider.signSecret({
-    callbackURL: "https://" + req.headers.host + TMPAUTH_PREFIX + "callback",
-    redirectURL: "https://" + req.headers.host + req.path + new URLSearchParams(req.query as Record<string, string>).toString(),
+    callbackURL: "https://" + host + TMPAUTH_PREFIX + "callback",
+    redirectURL: "https://" + host + req.path + new URLSearchParams(req.query as Record<string, string>).toString(),
     exp: now + 300,
     nbf: now,
     iat: now,
@@ -158,7 +195,7 @@ async function startAuth(
 async function validateToken(
   tokenStr: string,
   config: TmpauthConfig
-): Promise<TmpauthJwtPayload | undefined> {
+) {
   const host = config.authHost;
   const clientId = config.applicationSecret.clientId;
 
@@ -174,7 +211,7 @@ async function validateToken(
   if (token.iss !== `${host}:central`) return void console.error("tmpauth: invalid token iss");
   if (!token.sub) return void console.error("tmpauth: invalid token sub");
 
-  return token;
+  return { payload: token, token: state.token };
 }
 
 async function authCallback(

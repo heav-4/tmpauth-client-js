@@ -7,14 +7,18 @@ import { TEST_CONSTANTS } from "../constants";
 import { getTestTokens } from "../jwt/util";
 import * as cookie from "cookie";
 import { TestRequestOptions, verifyWebserver } from "./generic";
+import { TmpauthMockMetadataProvider } from "../metadata/mock";
+import { fetch } from "undici";
 
 const app = new Hono();
 
 const tmpauthMiddleware = tmpauth({
   jwtProvider: CloudflareWorkerJwtProvider,
+  metadataProvider: TmpauthMockMetadataProvider,
   applicationSecret: TEST_CONSTANTS.applicationSecret,
   authHost: TEST_CONSTANTS.authHost,
-  authPublicKey: TEST_CONSTANTS.authPublicKey
+  authPublicKey: TEST_CONSTANTS.authPublicKey,
+  fetch
 });
 
 app.use("*", tmpauthMiddleware);
@@ -86,5 +90,5 @@ describe("hono", () => {
     expect(response.status).toBe(200);
   });
 
-  verifyWebserver(makeTestRequest);
+  verifyWebserver(makeTestRequest, true);
 });

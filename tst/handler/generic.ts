@@ -1,6 +1,7 @@
 import { TEST_CONSTANTS } from "../constants";
 import { getTestCallbackTokens, getTestTokens, verifyCentral, verifySecret } from "../jwt/util";
 import cookie from "cookie";
+import { TmpauthMockMetadataProvider } from "../metadata/mock";
 
 export function verifyStateToken(token: string) {
   const stateToken = verifySecret(token);
@@ -51,7 +52,7 @@ export interface TestRequestOptions {
   urlParams?: Record<string, string>;
 }
 
-export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) => Promise<Response>) {
+export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) => Promise<Response>, mockMetadata: boolean = false) {
   it("should redirect with no token", async () => {
     const response = await makeTestRequest();
 
@@ -60,6 +61,9 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
 
   const { testToken, testCentralToken, testInvalidAudienceToken, testInvalidIssuerToken, testInvalidAudienceInnerToken, testInvalidIssuerInnerToken, testInvalidSubjectInnerToken, testInvalidInnerToken } = getTestTokens();
   const invalidTokens = ["invalid", testInvalidAudienceToken, testInvalidIssuerToken, testInvalidAudienceInnerToken, testInvalidIssuerInnerToken, testInvalidSubjectInnerToken, testInvalidInnerToken];
+
+  const mockValidUser = () => { if (mockMetadata) TmpauthMockMetadataProvider.mockUser({ uuid: TEST_CONSTANTS.userId, name: TEST_CONSTANTS.userName }); }
+  const mockInvalidUser = () => { if (mockMetadata) TmpauthMockMetadataProvider.mockUser(undefined); }
 
   for (const invalidToken of invalidTokens) {
     it(`should redirect with invalid token: ${invalidToken}`, async () => {
@@ -72,6 +76,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   }
 
   it("should pass with cookie token", async () => {
+    mockValidUser();
     const response = await makeTestRequest({
       tmpauthCookie: testToken
     });
@@ -80,6 +85,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   });
 
   it("should pass with header token", async () => {
+    mockValidUser();
     const response = await makeTestRequest({
       tmpauthHeader: testToken
     });
@@ -88,6 +94,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   });
 
   it("should pass with authorization header token", async () => {
+    mockValidUser();
     const response = await makeTestRequest({
       authorizationHeader: `Bearer ${testToken}`
     });
@@ -96,6 +103,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   });
 
   it("should pass with central token", async () => {
+    mockValidUser();
     const response = await makeTestRequest({
       tmpauthCookie: testCentralToken
     });
@@ -104,6 +112,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   });
 
   it("should pass with double middleware", async () => {
+    mockValidUser();
     const response = await makeTestRequest({
       path: "/test",
       tmpauthCookie: testToken
@@ -111,6 +120,17 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
 
     expect(response.status).toBe(200);
   });
+
+  if (mockMetadata) {
+    it("should return 403 with invalid user", async () => {
+      mockInvalidUser();
+      const response = await makeTestRequest({
+        tmpauthCookie: testToken
+      });
+
+      expect(response.status).toBe(403);
+    });
+  }
 
   const testCallback = getTestCallbackTokens();
 

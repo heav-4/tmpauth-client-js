@@ -13,7 +13,8 @@ export const TEST_CONSTANTS = {
     "RyFcxZ/HMWrZJMRtKspeEQ3jffGhRANCAAT3fqXh3p4/FNjfm3jy1D4xLhfrxScg\n" +
     "qTvX9qsXPHJwhZvHZCdaLB+q3m0gID6/6o7o25hPfvJNXaPY4akLFVKF\n" +
     "-----END PRIVATE KEY-----\n",
-  userId: "00000000-0000-0000-0000-000000000000"
+  userId: "00000000-0000-0000-0000-000000000000",
+  userName: "TestUser",
 }
 
 export const MOCK_CONFIG = {

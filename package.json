@@ -11,7 +11,8 @@
     ".": "./dist/index.js",
     "./package.json": "./package.json",
     "./handler/*": "./dist/handler/*.js",
-    "./jwt/*": "./dist/jwt/*.js"
+    "./jwt/*": "./dist/jwt/*.js",
+    "./metadata/*": "./dist/metadata/*.js"
   },
   "typesVersions": {
     "*": {
@@ -20,6 +21,9 @@
       ],
       "jwt/*": [
         "./dist/jwt/*"
+      ],
+      "metadata/*": [
+        "./dist/metadata/*"
       ]
     }
   },
