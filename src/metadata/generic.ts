@@ -7,8 +7,11 @@ export interface WhomstUser {
 }
 
 export abstract class TmpauthMetadataProvider {
-  constructor(protected config: TmpauthConfig) {}
+  protected config!: TmpauthConfig;
 
-  abstract init(): void;
+  init(config: TmpauthConfig) {
+    this.config = config;
+  }
+
   abstract retrieveUser(uuid: string, token: string): Promise<WhomstUser | undefined>;
 }

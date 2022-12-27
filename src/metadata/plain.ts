@@ -1,8 +1,6 @@
 import { TmpauthMetadataProvider, WhomstUser } from "./generic";
 
 export class TmpauthPlainMetadataProvider extends TmpauthMetadataProvider {
-  init() {}
-
   async retrieveUser(uuid: string, token: string) {
     const params = new URLSearchParams({ token });
 

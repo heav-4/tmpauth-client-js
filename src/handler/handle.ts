@@ -5,7 +5,7 @@ import type { fetch as DOMFetch } from "undici";
 
 export interface TmpauthParams {
   jwtProvider: { new (config: TmpauthConfig): TmpauthJwtProvider };
-  metadataProvider?: { new (config: TmpauthConfig): TmpauthMetadataProvider };
+  metadataProvider?: TmpauthMetadataProvider;
   applicationHost?: string;
   applicationSecret?: string;
   authHost?: string;
@@ -132,6 +132,7 @@ export async function handleTmpauth(
 export function createConfig(params: TmpauthParams): TmpauthConfig {
   const config = {
     applicationHost: params.applicationHost,
+    metadataProvider: params.metadataProvider,
     authHost: params.authHost || "auth.tmpim.pw",
     authPublicKey: params.authPublicKey || "BN/PHEYgs0meH878gqpWl81WD3zEJ+ubih3RVYwFxaYXxHF+5tgDaJ/M++CRjur8vtXxoJnPETM8WRIc3CO0LyM=",
     fetch: params.fetch || fetch.bind(globalThis)
@@ -151,9 +152,8 @@ export function createConfig(params: TmpauthParams): TmpauthConfig {
   };
   config.jwtProvider.init();
 
-  if (params.metadataProvider) {
-    config.metadataProvider = new params.metadataProvider(config);
-    config.metadataProvider.init();
+  if (config.metadataProvider) {
+    config.metadataProvider.init(config);
   }
 
   return config;

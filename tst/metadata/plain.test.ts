@@ -31,13 +31,13 @@ const MOCK_USER = {
 const MOCK_TOKEN = "test";
 
 describe("TmpauthPlainMetadataProvider", () => {
-  const provider = new TmpauthPlainMetadataProvider({
-    ...MOCK_CONFIG,
-    fetch
-  });
+  const provider = new TmpauthPlainMetadataProvider();
 
   it("should init successfully", () => {
-    expect(provider.init()).toBeUndefined();
+    expect(provider.init({
+      ...MOCK_CONFIG,
+      fetch
+    })).toBeUndefined();
   });
 
   it("should retrieve a user", async () => {

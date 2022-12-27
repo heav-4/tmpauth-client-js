@@ -14,7 +14,7 @@ const app = new Hono();
 
 const tmpauthMiddleware = tmpauth({
   jwtProvider: CloudflareWorkerJwtProvider,
-  metadataProvider: TmpauthMockMetadataProvider,
+  metadataProvider: new TmpauthMockMetadataProvider(),
   applicationSecret: TEST_CONSTANTS.applicationSecret,
   authHost: TEST_CONSTANTS.authHost,
   authPublicKey: TEST_CONSTANTS.authPublicKey,
