@@ -37,6 +37,7 @@ export interface TmpauthConfig {
   applicationHost?: string;
   jwtProvider: TmpauthJwtProvider;
   metadataProvider?: TmpauthMetadataProvider;
+  env: {};
   authHost: string;
   authPublicKey: string;
   fetch: typeof fetch;
@@ -129,13 +130,14 @@ export async function handleTmpauth(
   }
 }
 
-export function createConfig(params: TmpauthParams): TmpauthConfig {
+export function createConfig(params: TmpauthParams, env: {} = {}): TmpauthConfig {
   const config = {
     applicationHost: params.applicationHost,
     metadataProvider: params.metadataProvider,
     authHost: params.authHost || "auth.tmpim.pw",
     authPublicKey: params.authPublicKey || "BN/PHEYgs0meH878gqpWl81WD3zEJ+ubih3RVYwFxaYXxHF+5tgDaJ/M++CRjur8vtXxoJnPETM8WRIc3CO0LyM=",
-    fetch: params.fetch || fetch.bind(globalThis)
+    fetch: params.fetch || fetch.bind(globalThis),
+    env
   } as TmpauthConfig;
 
   if (!params.applicationSecret) throw new Error("Missing application secret");

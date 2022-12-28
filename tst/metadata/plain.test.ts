@@ -1,34 +1,25 @@
-import { MOCK_CONFIG, TEST_CONSTANTS } from "../constants";
+import { MOCK_CONFIG } from "../constants";
 import { TmpauthPlainMetadataProvider } from "../../src/metadata/plain";
 import { WhomstUser } from "../../src";
+import { MOCK_TOKEN, MOCK_USER } from "./mock";
 
 const fetch = jest.fn();
 
 const mockUser = (user: WhomstUser | undefined) => {
-  fetch.mockResolvedValue({
-    json: () => Promise.resolve<WhomstUser>({
-      uuid: TEST_CONSTANTS.userId,
-      name: TEST_CONSTANTS.userName
-    })
+  fetch.mockResolvedValueOnce({
+    json: () => Promise.resolve<WhomstUser>(MOCK_USER)
   });
 };
 
 const mockThrow = () => {
-  fetch.mockRejectedValue(new Error("test"));
+  fetch.mockRejectedValueOnce(new Error("test"));
 };
 
 const mockInvalidBody = () => {
-  fetch.mockResolvedValue({
+  fetch.mockResolvedValueOnce({
     json: () => Promise.reject(new Error("test"))
   });
 };
-
-const MOCK_USER = {
-  uuid: TEST_CONSTANTS.userId,
-  name: TEST_CONSTANTS.userName
-};
-
-const MOCK_TOKEN = "test";
 
 describe("TmpauthPlainMetadataProvider", () => {
   const provider = new TmpauthPlainMetadataProvider();

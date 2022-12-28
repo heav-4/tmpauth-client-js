@@ -1,0 +1,7 @@
+name = "tmpauth-js"
+compatibility_date = "2022-12-19"
+main = "hono.ts"
+
+kv_namespaces = [
+  { binding = "TMPAUTH_CACHE", id = "<id>", preview_id = "<preview_id>" }
+]

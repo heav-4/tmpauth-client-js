@@ -1,18 +1,20 @@
 import { Hono } from "hono";
 import { tmpauth } from "@tmpim/tmpauth-client-js/handler/hono";
 import { CloudflareWorkerJwtProvider } from "@tmpim/tmpauth-client-js/jwt/cloudflare-worker-jwt";
-import { TmpauthPlainMetadataProvider } from "@tmpim/tmpauth-client-js/metadata/plain";
+import { TmpauthCloudflareKVMetadataProvider } from "@tmpim/tmpauth-client-js/metadata/cloudflare-kv";
 import { TmpauthState } from "@tmpim/tmpauth-client-js";
 
 interface Env {
   TMPAUTH_SECRET: string;
+  TMPAUTH_CACHE: KVNamespace;
 }
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.use("*", tmpauth({
   jwtProvider: CloudflareWorkerJwtProvider,
-  metadataProvider: TmpauthPlainMetadataProvider,
+  metadataProvider: new TmpauthCloudflareKVMetadataProvider("TMPAUTH_CACHE"),
+  applicationHost: "127.0.0.1:8787" // Force localhost for testing
 }));
 
 app.get("/", c => c.text(`Hello, ${c.get<TmpauthState>("tmpauth").user!.name}!`));
