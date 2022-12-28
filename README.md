@@ -13,9 +13,11 @@ runs anywhere, minimal dependencies, 100% test coverage
  - hono ([example](https://github.com/tmpim/tmpauth-client-js/tree/master/examples/cloudflare-workers-hono/hono.ts))
  - express ([example](https://github.com/tmpim/tmpauth-client-js/tree/master/examples/nodejs-express/app.ts))
  - api gateway ([example](https://github.com/tmpim/tmpauth-client-js/tree/master/examples/aws-lambda-api-gateway/app.ts))
- - itty router (maybe)
+ - itty router (maybe later)
 
 ## todo (prs welcome)
- - identity fetching
- - identity caching
+ - more identity cache implementations
+   - redis
+   - dynamodb?
+ - more web frameworks / examples thereof
  - status endpoint
