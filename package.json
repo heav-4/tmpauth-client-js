@@ -1,6 +1,6 @@
 {
   "name": "@tmpim/tmpauth-client-js",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "tmpim",
   "description": "tmpauth client for javascript",
   "license": "MIT",
