@@ -15,9 +15,13 @@ runs anywhere, minimal dependencies, 100% test coverage
  - api gateway ([example](https://github.com/tmpim/tmpauth-client-js/tree/master/examples/aws-lambda-api-gateway/app.ts))
  - itty router (maybe later)
 
+## supported identity caches
+ - cloudflare workers kv ([example](https://github.com/tmpim/tmpauth-client-js/blob/master/examples/cloudflare-workers-hono/hono.ts#L16))
+
 ## todo (prs welcome)
  - more identity cache implementations
+   - memory
    - redis
-   - dynamodb?
+   - dynamodb
  - more web frameworks / examples thereof
  - status endpoint
