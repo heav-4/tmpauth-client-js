@@ -17,11 +17,11 @@ runs anywhere, minimal dependencies, 100% test coverage
 
 ## supported identity caches
  - cloudflare workers kv ([example](https://github.com/tmpim/tmpauth-client-js/blob/master/examples/cloudflare-workers-hono/hono.ts#L16))
+ - dynamodb ([example](https://github.com/tmpim/tmpauth-client-js/tree/master/examples/aws-lambda-api-gateway/app.ts#L12))
 
 ## todo (prs welcome)
  - more identity cache implementations
    - memory
    - redis
-   - dynamodb
  - more web frameworks / examples thereof
  - status endpoint

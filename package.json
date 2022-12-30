@@ -47,6 +47,7 @@
     "undici": "^5.14.0"
   },
   "optionalDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.241.0",
     "@tsndr/cloudflare-worker-jwt": "^2.1.4",
     "express": "^4.18.2",
     "hono": "^2.6.2",
