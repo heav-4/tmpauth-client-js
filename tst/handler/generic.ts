@@ -169,8 +169,39 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   it("should return 400 from callback with invalid state", async () => {
     const response = await makeTestRequest({
       path: "/.well-known/tmpauth/callback",
+      cookie: cookie.serialize(TEST_CONSTANTS.stateCookieName, testCallback.testState),
       urlParams: {
         state: "invalid",
+        token: testCallback.testToken,
+        error: "",
+        error_description: ""
+      }
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("should return 400 from callback with missing state cookie", async () => {
+    const response = await makeTestRequest({
+      path: "/.well-known/tmpauth/callback",
+      // cookie: none,
+      urlParams: {
+        state: testCallback.testState,
+        token: testCallback.testToken,
+        error: "",
+        error_description: ""
+      }
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it("should return 400 from callback with mismatched state cookie", async () => {
+    const response = await makeTestRequest({
+      path: "/.well-known/tmpauth/callback",
+      cookie: cookie.serialize(TEST_CONSTANTS.stateCookieName, "invalid"),
+      urlParams: {
+        state: testCallback.testState,
         token: testCallback.testToken,
         error: "",
         error_description: ""
@@ -183,6 +214,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   it("should return 400 from callback with invalid token", async () => {
     const response = await makeTestRequest({
       path: "/.well-known/tmpauth/callback",
+      cookie: cookie.serialize(TEST_CONSTANTS.stateCookieName, testCallback.testState),
       urlParams: {
         state: testCallback.testState,
         token: "invalid",
