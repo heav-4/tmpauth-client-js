@@ -5,7 +5,6 @@ import { tmpauth } from "../../src/handler/hono";
 import { CloudflareWorkerJwtProvider } from "../../src/jwt/cloudflare-worker-jwt";
 import { TEST_CONSTANTS } from "../constants";
 import { getTestTokens } from "../jwt/util";
-import * as cookie from "cookie";
 import { TestRequestOptions, verifyWebserver } from "./generic";
 import { TmpauthMockMetadataProvider } from "../metadata/mock";
 import { fetch } from "undici";
@@ -33,7 +32,7 @@ async function makeTestRequest(options: TestRequestOptions = {}) {
 
   headers.host = TEST_CONSTANTS.applicationHost;
   headers.origin = `https://${TEST_CONSTANTS.applicationHost}`;
-  if (options.tmpauthCookie) headers.cookie = cookie.serialize("tmpauth", options.tmpauthCookie);
+  if (options.cookie) headers.cookie = options.cookie;
   if (options.tmpauthHeader) headers["x-tmpauth-token"] = options.tmpauthHeader;
   if (options.authorizationHeader) headers.authorization = options.authorizationHeader;
 

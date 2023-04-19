@@ -5,7 +5,8 @@
   "description": "example of using tmpauth-js in cloudflare workers with hono",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "serve": "wrangler dev --local-protocol https"
   },
   "type": "module",
   "devDependencies": {

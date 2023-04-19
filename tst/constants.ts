@@ -15,6 +15,8 @@ export const TEST_CONSTANTS = {
     "-----END PRIVATE KEY-----\n",
   userId: "00000000-0000-0000-0000-000000000000",
   userName: "TestUser",
+  cookieName: `__Host-tmpauth-00000000000000000000000000000000`,
+  stateCookieName: `__Host-tmpauth-state-00000000000000000000000000000000`,
 }
 
 export const MOCK_CONFIG = {

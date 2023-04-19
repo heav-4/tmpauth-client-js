@@ -58,6 +58,9 @@ export interface TmpauthRequest {
 const TMPAUTH_PREFIX = "/.well-known/tmpauth/";
 const BEARER_PREFIX = "Bearer ";
 
+const authCookieName = (applicationId: string) => `__Host-tmpauth-${applicationId}`;
+const stateCookieName = (applicationId: string) => `__Host-tmpauth-state-${applicationId}`;
+
 export async function handleTmpauth(
   req: TmpauthRequest,
   config: TmpauthConfig
@@ -85,7 +88,7 @@ export async function handleTmpauth(
     }
   }
 
-  const cookieToken = cookie.parse(req.headers.cookie || "").tmpauth as string | undefined;
+  const cookieToken = cookie.parse(req.headers.cookie || "")[authCookieName(config.applicationSecret.clientId)];
   const xTmpauthHeader = req.headers["x-tmpauth-token"];
   const authHeader = req.headers.authorization?.startsWith(BEARER_PREFIX) ? req.headers.authorization.slice(BEARER_PREFIX.length) : undefined;
 
@@ -166,12 +169,13 @@ async function startAuth(
   config: TmpauthConfig
 ): Promise<TmpauthResponse> {
   const now = Math.floor(Date.now() / 1000);
+  const expiry = now + 300;
   const host = config.applicationHost || req.headers.host;
 
   const token = await config.jwtProvider.signSecret({
     callbackURL: "https://" + host + TMPAUTH_PREFIX + "callback",
     redirectURL: "https://" + host + req.path + new URLSearchParams(req.query as Record<string, string>).toString(),
-    exp: now + 300,
+    exp: expiry,
     nbf: now,
     iat: now,
     iss: `${config.authHost}:server:${config.applicationSecret.clientId}`,
@@ -189,6 +193,13 @@ async function startAuth(
     statusCode: 302,
     headers: {
       location: new URL("/auth", `https://${config.authHost}`) + "?" + new URLSearchParams(queryParams).toString(),
+      "set-cookie": cookie.serialize(stateCookieName(config.applicationSecret.clientId), token, {
+        maxAge: expiry - Date.now() / 1000,
+        path: "/",
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax"
+      })
     },
     body: "tmpauth: redirect to login"
   };
@@ -221,8 +232,10 @@ async function authCallback(
   config: TmpauthConfig
 ): Promise<TmpauthResponse> {
   const { state: stateStr, token: tokenStr } = req.query;
+  console.log(req.headers.cookie)
+  const stateCookie = cookie.parse(req.headers.cookie || "")[stateCookieName(config.applicationSecret.clientId)];
 
-  if (!stateStr || !tokenStr) {
+  if (!stateStr || !tokenStr || !stateCookie) {
     return {
       ok: false,
       statusCode: 400,
@@ -238,6 +251,15 @@ async function authCallback(
       statusCode: 400,
       headers: {},
       body: "tmpauth: invalid state"
+    };
+  }
+
+  if (stateStr !== stateCookie) {
+    return {
+      ok: false,
+      statusCode: 400,
+      headers: {},
+      body: "tmpauth: state mismatch"
     };
   }
 
@@ -263,7 +285,7 @@ async function authCallback(
     statusCode: 302,
     headers: {
       location: state.redirectURL,
-      "set-cookie": cookie.serialize("tmpauth", wrappedToken, {
+      "set-cookie": cookie.serialize(authCookieName(config.applicationSecret.clientId), wrappedToken, {
         maxAge: (token.exp as number) - Date.now() / 1000,
         path: "/",
         httpOnly: true,

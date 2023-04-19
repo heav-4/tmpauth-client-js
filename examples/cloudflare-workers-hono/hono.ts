@@ -14,7 +14,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.use("*", tmpauth({
   jwtProvider: CloudflareWorkerJwtProvider,
   metadataProvider: new TmpauthCloudflareKVMetadataProvider("TMPAUTH_CACHE"),
-  applicationHost: "127.0.0.1:8787" // Force localhost for testing
+  applicationHost: "localhost:8787" // Force localhost for testing, since we're not using a real domain
 }));
 
 app.get("/", c => c.text(`Hello, ${c.get<TmpauthState>("tmpauth").user!.name}!`));

@@ -40,13 +40,16 @@ export function verifyRedirectResponse(response: Response) {
   expect(redirectURL.searchParams.get("client_id")).toBe(TEST_CONSTANTS.applicationId);
   expect(redirectURL.searchParams.get("method")).toBe("tmpauth");
   expect(redirectURL.searchParams.get("state")).toBeDefined();
+  const state = redirectURL.searchParams.get("state");
+  const cookies = cookie.parse(response.headers.get("Set-Cookie")!);
+  expect(cookies[TEST_CONSTANTS.stateCookieName]).toBe(state);
 
   verifyStateToken(redirectURL.searchParams.get("state")!);
 }
 
 export interface TestRequestOptions {
   path?: string;
-  tmpauthCookie?: string;
+  cookie?: string;
   tmpauthHeader?: string;
   authorizationHeader?: string;
   urlParams?: Record<string, string>;
@@ -68,7 +71,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   for (const invalidToken of invalidTokens) {
     it(`should redirect with invalid token: ${invalidToken}`, async () => {
       const response = await makeTestRequest({
-        tmpauthCookie: invalidToken
+        cookie: cookie.serialize(TEST_CONSTANTS.cookieName, invalidToken)
       });
 
       verifyRedirectResponse(response);
@@ -78,7 +81,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   it("should pass with cookie token", async () => {
     mockValidUser();
     const response = await makeTestRequest({
-      tmpauthCookie: testToken
+      cookie: cookie.serialize(TEST_CONSTANTS.cookieName, testToken)
     });
 
     expect(response.status).toBe(200);
@@ -105,7 +108,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   it("should pass with central token", async () => {
     mockValidUser();
     const response = await makeTestRequest({
-      tmpauthCookie: testCentralToken
+      cookie: cookie.serialize(TEST_CONSTANTS.cookieName, testCentralToken)
     });
 
     expect(response.status).toBe(200);
@@ -115,7 +118,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
     mockValidUser();
     const response = await makeTestRequest({
       path: "/test",
-      tmpauthCookie: testToken
+      cookie: cookie.serialize(TEST_CONSTANTS.cookieName, testToken)
     });
 
     expect(response.status).toBe(200);
@@ -125,7 +128,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
     it("should return 403 with invalid user", async () => {
       mockInvalidUser();
       const response = await makeTestRequest({
-        tmpauthCookie: testToken
+        cookie: cookie.serialize(TEST_CONSTANTS.cookieName, testToken)
       });
 
       expect(response.status).toBe(403);
@@ -137,6 +140,7 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
   it("should return from callback", async () => {
     const response = await makeTestRequest({
       path: "/.well-known/tmpauth/callback",
+      cookie: cookie.serialize(TEST_CONSTANTS.stateCookieName, testCallback.testState),
       urlParams: {
         state: testCallback.testState,
         token: testCallback.testToken,
@@ -149,9 +153,9 @@ export function verifyWebserver(makeTestRequest: (options?: TestRequestOptions) 
     expect(response.headers.get("Location")).toBe(`https://${TEST_CONSTANTS.applicationHost}/`);
     expect(response.headers.get("Set-Cookie")).not.toBeNull();
     const cookieHeader = cookie.parse(response.headers.get("Set-Cookie")!);
-    expect(cookieHeader.tmpauth).toBeDefined();
+    expect(cookieHeader[TEST_CONSTANTS.cookieName]).toBeDefined();
 
-    verifyWrappedToken(cookieHeader.tmpauth, testCallback.testToken);
+    verifyWrappedToken(cookieHeader[TEST_CONSTANTS.cookieName], testCallback.testToken);
   });
 
   it("should return 400 from callback with no parameters", async () => {

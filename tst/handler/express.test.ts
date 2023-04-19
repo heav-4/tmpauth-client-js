@@ -2,7 +2,6 @@ import express from "express";
 import { tmpauth } from "../../src/handler/express";
 import { JsonWebTokenProvider } from "../../src/jwt/jsonwebtoken";
 import { TEST_CONSTANTS } from "../constants";
-import cookie from "cookie";
 import { Server } from "http";
 import { TestRequestOptions, verifyWebserver } from "./generic";
 import { fetch } from "undici";
@@ -52,7 +51,7 @@ async function makeTestRequest(options: TestRequestOptions = {}): Promise<Respon
 
   headers.host = TEST_CONSTANTS.applicationHost;
   headers.origin = `https://${TEST_CONSTANTS.applicationHost}`;
-  if (options.tmpauthCookie) headers.cookie = cookie.serialize("tmpauth", options.tmpauthCookie);
+  if (options.cookie) headers.cookie = options.cookie;
   if (options.tmpauthHeader) headers["x-tmpauth-token"] = options.tmpauthHeader;
   if (options.authorizationHeader) headers.authorization = options.authorizationHeader;
 

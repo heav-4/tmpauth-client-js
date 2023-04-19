@@ -3,7 +3,6 @@ import { tmpauth } from "../../src/handler/api-gateway";
 import { JsonWebTokenProvider } from "../../src/jwt/jsonwebtoken";
 import { TEST_CONSTANTS } from "../constants";
 import { TestRequestOptions, verifyWebserver } from "./generic";
-import cookie from "cookie";
 import { eliminateArraysAndObjects } from "../../src";
 
 const tmpauthMiddleware = tmpauth({
@@ -39,7 +38,7 @@ async function makeTestRequest(options: TestRequestOptions = {}): Promise<Respon
 
   event.headers.host = TEST_CONSTANTS.applicationHost;
   event.headers.origin = `https://${TEST_CONSTANTS.applicationHost}`;
-  if (options.tmpauthCookie) event.headers.cookie = cookie.serialize("tmpauth", options.tmpauthCookie);
+  if (options.cookie) event.headers.cookie = options.cookie;
   if (options.tmpauthHeader) event.headers["x-tmpauth-token"] = options.tmpauthHeader;
   if (options.authorizationHeader) event.headers.authorization = options.authorizationHeader;
 
